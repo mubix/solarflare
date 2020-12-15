@@ -1,6 +1,10 @@
 # solarflare
 
+![.NET Build](https://github.com/mubix/solarflare/workflows/.NET%20Build/badge.svg)
+
 Credential Dumping Tool for SolarWinds Orion
+
+Blog post: https://malicious.link/post/2020/solarflare-release-password-dumper-for-solarwinds-orion/
 
 ```
 ============================================
