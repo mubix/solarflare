@@ -80,6 +80,16 @@ Blog post: https://malicious.link/post/2020/solarflare-release-password-dumper-f
 |        Allow Admin: N
 |        Last Login: 01/01/1900
 --------------------------------------------
+|        Account: SITTINGDUCK\uberolduser
+|        Password: 11-417578424799297-9-6260697430795685763067724
+|        Decoded Password: ASDQWE123
+|        Hashcat Mode 21500: $solarwinds$0$admin$fF1lrlOXfxVz51Etjcs18XNK+Zt3keV2AllH9cYtGzdt5Yg2TtcsU84G9+5VVFMIUorR5eNJzX/1kmef6wZfrg==
+|        Account Enabled: Y
+|        Allow Admin: N
+|        Last Login: 11/15/2015
+|        Account SID: S-1-5-21-1000000000-2000000000-3000000000-50000
+|        Group: SITTINGDUCK\Domain Admins
+--------------------------------------------
 ============================================
 | DB - Exporting Credentials Table         |
 ------------------1--------------------------
