@@ -1,0 +1,27 @@
+name: .NET Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2.3.4
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      env:
+        DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    - name: Create Release
+      id: create_release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest"
+        title: Release ${{ github.sha }}
+        files: ./SolarFlare/bin/Release/SolarFlare.exe
+        prerelease: false
