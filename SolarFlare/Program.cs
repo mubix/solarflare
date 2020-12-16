@@ -337,7 +337,7 @@ namespace SolarFlare
 					}
 				}
 			}
-			if(flare.Db.Connection.State == System.Data.ConnectionState.Open)
+			if(flare.Db.Connection != null && flare.Db.Connection.State == System.Data.ConnectionState.Open)
 			{
 				return true;
 			}
