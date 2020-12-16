@@ -191,6 +191,12 @@ namespace SolarFlare
 						perfmondb += "SWNetPerfMon.DB";
 					}
 				}
+				else
+				{
+					Console.WriteLine("============================================");
+					Console.WriteLine("It doesn't appear that SolarWinds Orion is installed here. Exiting...");
+					System.Environment.Exit(1);
+				}
 			}
 			catch
 			{
