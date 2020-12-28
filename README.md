@@ -6,6 +6,9 @@ Credential Dumping Tool for SolarWinds Orion
 
 Blog post: https://malicious.link/post/2020/solarflare-release-password-dumper-for-solarwinds-orion/
 
+Credit to [@asolino](https://github.com/asolino), [@gentilkiwi](https://github.com/gentilkiwi), and [@skelsec](https://github.com/skelsec)
+for helping me figuring out DPAPI.
+
 ```
 ============================================
 | Collecting RabbitMQ Erlang Cookie
