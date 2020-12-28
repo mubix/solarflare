@@ -132,7 +132,7 @@ namespace SolarFlare
 			}
 			return solarcert;
 		}
-
+		// Credit to @asolino, @gentilkiwi, and @skelsec for helping me figuring out DPAPI in this DAT file
 		static FlareData.DatHex GetDat()
 		{
 			FlareData.DatHex dat = new FlareData.DatHex();
