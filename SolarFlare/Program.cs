@@ -285,7 +285,14 @@ namespace SolarFlare
 										byteencPass = Convert.FromBase64String(encPass + "==");
 									}
 								}
-								cred.DbPass = Encoding.UTF8.GetString(ProtectedData.Unprotect(byteencPass, additionalEntropy, DataProtectionScope.LocalMachine));
+								try
+								{
+									cred.DbPass = Encoding.UTF8.GetString(ProtectedData.Unprotect(byteencPass, additionalEntropy, DataProtectionScope.LocalMachine));
+								}
+								catch
+								{
+									Console.WriteLine("Decrypt Failed for " + encPass);
+								}
 							}
 							else if (connString.ContainsKey("Password"))
 							{
