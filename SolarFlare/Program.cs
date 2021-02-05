@@ -243,7 +243,7 @@ namespace SolarFlare
 							{
 								cred.DbUser = connString["User ID"];
 							}
-
+							// Add the Encryption Option(s)
 							if (connString.ContainsKey("encrypt"))
                             {
 								if(connString["encrypt"].ToUpper() == "TRUE")
@@ -270,6 +270,8 @@ namespace SolarFlare
 							// Integrated Security
 							if (connString.ContainsKey("Integrated Security"))
 							{
+								cred.DBIntegratedSecurity = true;
+								cred.DBIntegratedSecurityString = connString["Integrated Security"];
 								if (File.Exists(jsonpath))
 								{
 									string json = File.ReadAllText(jsonpath);
@@ -359,6 +361,10 @@ namespace SolarFlare
 						SqlConnection sqlconn = new SqlConnection();
 						sqlconn.ConnectionString = "Data Source=" + sql.DbHost + ";Initial Catalog=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
 						sqlconn.ConnectionString += ";MultipleActiveResultSets=true";
+						if(sql.DBIntegratedSecurity == true)
+                        {
+							sqlconn.ConnectionString += $";Integrated Security={sql.DBIntegratedSecurityString}";
+                        }
 						if(sql.DbEncrypted == true)
                         {
 							sqlconn.ConnectionString += ";encrypt=True";
@@ -808,6 +814,8 @@ namespace SolarFlare
 					internal string DbDB { get; set; }
 					internal bool DbEncrypted { get; set; }
 					internal bool DbTrustCert { get; set; }
+					internal bool DBIntegratedSecurity { get; set; }
+					internal string DBIntegratedSecurityString { get; set; }
 				}
 
 			}
