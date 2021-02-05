@@ -377,9 +377,10 @@ namespace SolarFlare
 								break;
 							}
 						}
-						catch
+						catch (SqlException ex)
 						{
 							Console.WriteLine($"| \tConnection failed to: {sqlconn.ConnectionString}");
+							Console.WriteLine($"| \t\t Exception: {ex.ErrorCode} - {ex.Message}");
 						}
 					}
 					catch
