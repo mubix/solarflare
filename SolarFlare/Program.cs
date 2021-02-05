@@ -326,7 +326,7 @@ namespace SolarFlare
 								Console.WriteLine("--------------------------------------------");
 								Console.WriteLine($"| \tUnrecognized Connection String: {connString}");
 							}
-							Console.WriteLine("| \tConnection String: Server=" + cred.DbHost + ";Database=" +
+							Console.WriteLine("| \tConnection String: Data Source=" + cred.DbHost + ";Initial Catalog=" +
 								cred.DbDB + ";User ID=" + cred.DbUser +
 								";Password=" + cred.DbPass);
 							try
@@ -357,7 +357,7 @@ namespace SolarFlare
 					try
                     {
 						SqlConnection sqlconn = new SqlConnection();
-						sqlconn.ConnectionString = "Server=" + sql.DbHost + ";Database=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
+						sqlconn.ConnectionString = "Data Source=" + sql.DbHost + ";Initial Catalog=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
 						sqlconn.ConnectionString += ";MultipleActiveResultSets=true";
 						if(sql.DbEncrypted == true)
                         {
@@ -384,7 +384,7 @@ namespace SolarFlare
 					}
 					catch
                     {
-						Console.WriteLine($"| \t CONNECTION STRING INVALID: Server = " + sql.DbHost + "; Database = " + sql.DbDB + "; User ID = " + sql.DbUser + "; Password = " + sql.DbPass);
+						Console.WriteLine($"| \t CONNECTION STRING INVALID: Data Source = " + sql.DbHost + "; Initial Catalog = " + sql.DbDB + "; User ID = " + sql.DbUser + "; Password = " + sql.DbPass);
                     }
 
 				}
