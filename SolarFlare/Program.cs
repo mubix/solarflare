@@ -244,6 +244,29 @@ namespace SolarFlare
 								cred.DbUser = connString["User ID"];
 							}
 
+							if (connString.ContainsKey("encrypt"))
+                            {
+								if(connString["encrypt"].ToUpper() == "TRUE")
+                                {
+									cred.DbEncrypted = true;
+									if(connString.ContainsKey("trustservercertificate"))
+                                    {
+										if(connString["trustservercertificate"].ToUpper() == "TRUE")
+                                        {
+											cred.DbTrustCert = true;
+                                        }
+										else
+                                        {
+											cred.DbTrustCert = false;
+                                        }
+                                    }
+                                }
+								else
+                                {
+									cred.DbEncrypted = false;
+                                }
+                            }
+
 							// Integrated Security
 							if (connString.ContainsKey("Integrated Security"))
 							{
@@ -331,23 +354,39 @@ namespace SolarFlare
 			{
 				foreach(FlareData.FlareDB.DbCredential sql in flare.Db.Credentials)
 				{
-					SqlConnection sqlconn = new SqlConnection();
-					sqlconn.ConnectionString = "Server=" + sql.DbHost + ";Database=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
-					sqlconn.ConnectionString += ";MultipleActiveResultSets=true";
 					try
-					{
-						sqlconn.Open();
-						if (sqlconn.State == System.Data.ConnectionState.Open)
+                    {
+						SqlConnection sqlconn = new SqlConnection();
+						sqlconn.ConnectionString = "Server=" + sql.DbHost + ";Database=" + sql.DbDB + ";User ID=" + sql.DbUser + ";Password=" + sql.DbPass;
+						sqlconn.ConnectionString += ";MultipleActiveResultSets=true";
+						if(sql.DbEncrypted == true)
+                        {
+							sqlconn.ConnectionString += ";encrypt=True";
+							if(sql.DbTrustCert == true)
+                            {
+								sqlconn.ConnectionString += ";trustservercertificate=True";
+							}
+                        }
+						try
 						{
-							Console.WriteLine("| \tSuccessfully connected to: {0}", sqlconn.ConnectionString);
-							flare.Db.Connection = sqlconn;
-							break;
+							sqlconn.Open();
+							if (sqlconn.State == System.Data.ConnectionState.Open)
+							{
+								Console.WriteLine("| \tSuccessfully connected to: {0}", sqlconn.ConnectionString);
+								flare.Db.Connection = sqlconn;
+								break;
+							}
+						}
+						catch
+						{
+							Console.WriteLine($"| \tConnection failed to: {sqlconn.ConnectionString}");
 						}
 					}
 					catch
-					{
-						Console.WriteLine($"| \tConnection failed to: {sqlconn.ConnectionString}");
-					}
+                    {
+						Console.WriteLine($"| \t CONNECTION STRING INVALID: Server = " + sql.DbHost + "; Database = " + sql.DbDB + "; User ID = " + sql.DbUser + "; Password = " + sql.DbPass);
+                    }
+
 				}
 			}
 			if(flare.Db.Connection != null && flare.Db.Connection.State == System.Data.ConnectionState.Open)
@@ -766,6 +805,8 @@ namespace SolarFlare
 					internal string DbUser { get; set; }
 					internal string DbPass { get; set; }
 					internal string DbDB { get; set; }
+					internal bool DbEncrypted { get; set; }
+					internal bool DbTrustCert { get; set; }
 				}
 
 			}
