@@ -692,12 +692,12 @@ namespace SolarFlare
 					while (reader.Read())
 					{
 						if (!reader.IsDBNull(0)) { Console.WriteLine("|\t Account: " + reader.GetString(0)); }
-						if (!reader.IsDBNull(2)) { Console.WriteLine($"|\t Hashcat Mode 21500: $solarwinds$0${reader.GetString(0).ToLower()}${reader.GetString(1)}"); }
-						if (!reader.IsDBNull(3)) { Console.WriteLine("|\t Account Enabled: " + reader.GetString(2)); }
-						if (!reader.IsDBNull(4)) { Console.WriteLine("|\t Allow Admin: " + reader.GetString(3)); }
-						if (!reader.IsDBNull(5)) { Console.WriteLine("|\t Last Login: " + reader.GetDateTime(4).ToString("MM/dd/yyyy")); }
-						if (!reader.IsDBNull(6)) { Console.WriteLine("|\t Account SID: " + reader.GetString(5)); }
-						if (!reader.IsDBNull(7)) { Console.WriteLine("|\t Group: " + reader.GetString(6)); }
+						if (!reader.IsDBNull(1)) { Console.WriteLine($"|\t Hashcat Mode 21500: $solarwinds$0${reader.GetString(0).ToLower()}${reader.GetString(1)}"); }
+						if (!reader.IsDBNull(2)) { Console.WriteLine("|\t Account Enabled: " + reader.GetString(2)); }
+						if (!reader.IsDBNull(3)) { Console.WriteLine("|\t Allow Admin: " + reader.GetString(3)); }
+						if (!reader.IsDBNull(4)) { Console.WriteLine("|\t Last Login: " + reader.GetDateTime(4).ToString("MM/dd/yyyy")); }
+						if (!reader.IsDBNull(5)) { Console.WriteLine("|\t Account SID: " + reader.GetString(5)); }
+						if (!reader.IsDBNull(6)) { Console.WriteLine("|\t Group: " + reader.GetString(6)); }
 						Console.WriteLine("--------------------------------------------");
 					}
 					reader.Close();
