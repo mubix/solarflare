@@ -727,7 +727,7 @@ namespace SolarFlare
 						else
 						{
 							Console.WriteLine("|\t Salt is NULL in DB so lowercase username is used: " + reader.GetString(0).ToLower());
-							Console.WriteLine($"|\t Hashcat Mode 12500: $solarwinds$0${reader.GetString(0).ToLower()}${reader.GetString(1)}");
+							Console.WriteLine($"|\t Hashcat Mode 21500: $solarwinds$0${reader.GetString(0).ToLower()}${reader.GetString(1)}");
 						}
 						if (!reader.IsDBNull(3)) { Console.WriteLine("|\t Account Enabled: " + reader.GetString(3)); }
 						if (!reader.IsDBNull(4)) { Console.WriteLine("|\t Allow Admin: " + reader.GetString(4)); }
