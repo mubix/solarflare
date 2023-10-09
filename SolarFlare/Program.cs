@@ -16,9 +16,35 @@ namespace SolarFlare
 	{
 		internal static FlareData flare = new FlareData();
 		static void Main(string[] args)
-        	{
+        {
 			Console.WriteLine("Don't look directly into the sun...");
 			Console.WriteLine("Tool created by Rob Fuller (@mubix)");
+			Console.WriteLine("============================================");
+			if(args.Length > 0)
+			{
+				path = args[0];
+				if(File.Exists(path))
+				{
+					using (StreamReader streamReader = File.OpenText(perfmondb))
+					{
+						string text;
+						while (!streamReader.EndOfStream && (text = streamReader.ReadLine()) != null)
+						{
+							ParseConnectionString(text);
+						}
+					}
+				}
+				else
+				{
+					Console.WriteLine("File not found: " + path);
+					System.Environment.Exit(1);
+				}
+			}
+			else
+			{
+				Console.WriteLine(" A connection string file can be used by");
+				Console.WriteLine(" specifying the file path as an argument");
+			}
 			Console.WriteLine("============================================");
 			Console.WriteLine("| Collecting RabbitMQ Erlang Cookie");
             		flare.ErlangCookie = GetErlangCookie();
@@ -168,6 +194,128 @@ namespace SolarFlare
 			return dat;
 		}
 
+		static void ParseConnectionString(string text)
+		{
+			Dictionary<string, string> dictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+			FlareData.FlareDB.DbCredential cred = new FlareData.FlareDB.DbCredential();
+			Dictionary<string, string> connString = text.Split(';')
+				.Select(value => value.Split('='))
+				.ToDictionary(pair => pair[0], pair => pair[1],
+				StringComparer.OrdinalIgnoreCase);
+
+			// Add the Database
+			if (connString.ContainsKey("Initial Catalog"))
+			{
+				cred.DbDB = connString["Initial Catalog"];
+			}
+			// Add the Host
+			if (connString.ContainsKey("Data Source"))
+			{
+				cred.DbHost = connString["Data Source"];
+			}
+			// Add the User ID
+			if (connString.ContainsKey("User ID"))
+			{
+				cred.DbUser = connString["User ID"];
+			}
+			// Add the Encryption Option(s)
+			if (connString.ContainsKey("encrypt"))
+			{
+				if(connString["encrypt"].ToUpper() == "TRUE")
+				{
+					cred.DbEncrypted = true;
+					if(connString.ContainsKey("trustservercertificate"))
+					{
+						if(connString["trustservercertificate"].ToUpper() == "TRUE")
+						{
+							cred.DbTrustCert = true;
+						}
+						else
+						{
+							cred.DbTrustCert = false;
+						}
+					}
+				}
+				else
+				{
+					cred.DbEncrypted = false;
+				}
+			}
+
+			// Integrated Security
+			if (connString.ContainsKey("Integrated Security"))
+			{
+				cred.DBIntegratedSecurity = true;
+				cred.DBIntegratedSecurityString = connString["Integrated Security"];
+				if (File.Exists(jsonpath))
+				{
+					string json = File.ReadAllText(jsonpath);
+					json = json.TrimStart('{').TrimEnd('}').Replace("\"", "");
+					Dictionary<string, string> jsondata = json.Split(',')
+						.Select(value => value.Split(':'))
+						.ToDictionary(pair => pair[0], pair => pair[1],
+						StringComparer.OrdinalIgnoreCase);
+					if (jsondata.ContainsKey("Password"))
+					{
+						cred.DbPass = Decrypt(jsondata["Password"]);
+					}
+					if (jsondata.ContainsKey("Username"))
+					{
+						cred.DbUser = jsondata["Username"];
+					}
+				}
+			}
+			else if (connString.ContainsKey("Encrypted.Password"))
+			{
+				byte[] byteencPass;
+				string encPass = connString["Encrypted.Password"].Replace("\"", "");
+				// Add padding if text parsing removed it
+				try
+				{
+					byteencPass = Convert.FromBase64String(encPass);
+				}
+				catch
+				{
+					try
+					{
+						byteencPass = Convert.FromBase64String(encPass + "=");
+					}
+					catch
+					{
+						byteencPass = Convert.FromBase64String(encPass + "==");
+					}
+				}
+				try
+				{
+					cred.DbPass = Encoding.UTF8.GetString(ProtectedData.Unprotect(byteencPass, additionalEntropy, DataProtectionScope.LocalMachine));
+				}
+				catch
+				{
+					Console.WriteLine("Decrypt Failed for " + encPass);
+				}
+			}
+			else if (connString.ContainsKey("Password"))
+			{
+				cred.DbPass = connString["Password"];
+			}
+			else
+			{
+				Console.WriteLine("--------------------------------------------");
+				Console.WriteLine($"| \tUnrecognized Connection String: {connString}");
+			}
+			Console.WriteLine("| \tConnection String: Data Source=" + cred.DbHost + ";Initial Catalog=" +
+				cred.DbDB + ";User ID=" + cred.DbUser +
+				";Password=" + cred.DbPass);
+			try
+			{
+				flare.Db.Credentials.Add(cred);
+			}
+			catch (Exception e)
+			{
+				Console.WriteLine(e);
+			}
+		}
+
 		static void GetDatabaseConnection()
 		{
 			// SolarWinds Orion uses a default entropy for it's CryptUnprotectData
@@ -221,125 +369,7 @@ namespace SolarFlare
 					{
 						if (text.StartsWith("ConnectionString"))
 						{
-
-							FlareData.FlareDB.DbCredential cred = new FlareData.FlareDB.DbCredential();
-							Dictionary<string, string> connString = text.Split(';')
-								.Select(value => value.Split('='))
-								.ToDictionary(pair => pair[0], pair => pair[1],
-								StringComparer.OrdinalIgnoreCase);
-
-							// Add the Database
-							if (connString.ContainsKey("Initial Catalog"))
-							{
-								cred.DbDB = connString["Initial Catalog"];
-							}
-							// Add the Host
-							if (connString.ContainsKey("Data Source"))
-							{
-								cred.DbHost = connString["Data Source"];
-							}
-							// Add the User ID
-							if (connString.ContainsKey("User ID"))
-							{
-								cred.DbUser = connString["User ID"];
-							}
-							// Add the Encryption Option(s)
-							if (connString.ContainsKey("encrypt"))
-                            {
-								if(connString["encrypt"].ToUpper() == "TRUE")
-                                {
-									cred.DbEncrypted = true;
-									if(connString.ContainsKey("trustservercertificate"))
-                                    {
-										if(connString["trustservercertificate"].ToUpper() == "TRUE")
-                                        {
-											cred.DbTrustCert = true;
-                                        }
-										else
-                                        {
-											cred.DbTrustCert = false;
-                                        }
-                                    }
-                                }
-								else
-                                {
-									cred.DbEncrypted = false;
-                                }
-                            }
-
-							// Integrated Security
-							if (connString.ContainsKey("Integrated Security"))
-							{
-								cred.DBIntegratedSecurity = true;
-								cred.DBIntegratedSecurityString = connString["Integrated Security"];
-								if (File.Exists(jsonpath))
-								{
-									string json = File.ReadAllText(jsonpath);
-									json = json.TrimStart('{').TrimEnd('}').Replace("\"", "");
-									Dictionary<string, string> jsondata = json.Split(',')
-										.Select(value => value.Split(':'))
-										.ToDictionary(pair => pair[0], pair => pair[1],
-										StringComparer.OrdinalIgnoreCase);
-									if (jsondata.ContainsKey("Password"))
-									{
-										cred.DbPass = Decrypt(jsondata["Password"]);
-									}
-									if (jsondata.ContainsKey("Username"))
-									{
-										cred.DbUser = jsondata["Username"];
-									}
-								}
-							}
-							else if (connString.ContainsKey("Encrypted.Password"))
-							{
-								byte[] byteencPass;
-								string encPass = connString["Encrypted.Password"].Replace("\"", "");
-								// Add padding if text parsing removed it
-								try
-								{
-									byteencPass = Convert.FromBase64String(encPass);
-								}
-								catch
-								{
-									try
-									{
-										byteencPass = Convert.FromBase64String(encPass + "=");
-									}
-									catch
-									{
-										byteencPass = Convert.FromBase64String(encPass + "==");
-									}
-								}
-								try
-								{
-									cred.DbPass = Encoding.UTF8.GetString(ProtectedData.Unprotect(byteencPass, additionalEntropy, DataProtectionScope.LocalMachine));
-								}
-								catch
-								{
-									Console.WriteLine("Decrypt Failed for " + encPass);
-								}
-							}
-							else if (connString.ContainsKey("Password"))
-							{
-								cred.DbPass = connString["Password"];
-							}
-							else
-							{
-								Console.WriteLine("--------------------------------------------");
-								Console.WriteLine($"| \tUnrecognized Connection String: {connString}");
-							}
-							Console.WriteLine("| \tConnection String: Data Source=" + cred.DbHost + ";Initial Catalog=" +
-								cred.DbDB + ";User ID=" + cred.DbUser +
-								";Password=" + cred.DbPass);
-							try
-							{
-								flare.Db.Credentials.Add(cred);
-							}
-							catch (Exception e)
-							{
-								Console.WriteLine(e);
-							}
-
+							ParseConnectionString(text);
 						}
 						else if (text.StartsWith("Connection"))
 						{
