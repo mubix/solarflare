@@ -22,10 +22,10 @@ namespace SolarFlare
 			Console.WriteLine("============================================");
 			if(args.Length > 0)
 			{
-				path = args[0];
+				string path = args[0];
 				if(File.Exists(path))
 				{
-					using (StreamReader streamReader = File.OpenText(perfmondb))
+					using (StreamReader streamReader = File.OpenText(path))
 					{
 						string text;
 						while (!streamReader.EndOfStream && (text = streamReader.ReadLine()) != null)
@@ -196,6 +196,18 @@ namespace SolarFlare
 
 		static void ParseConnectionString(string text)
 		{
+			// SolarWinds Orion uses a default entropy for it's CryptUnprotectData
+			// This is currently being removed from the code base as far as I can tell
+			// so this may break in the future.
+
+			byte[] additionalEntropy = new byte[] { 2, 0, 1, 2, 0, 3, 0, 9 };
+
+
+			// SolarWindsDatabaseAccessCredential.json has been found to be used for external database connections
+			// I don't know why this is used and why it isn't in other cases..
+			string jsonpath = Environment.GetEnvironmentVariable("programdata");
+			jsonpath += "\\SolarWinds\\CredentialStorage\\SolarWindsDatabaseAccessCredential.json";
+
 			Dictionary<string, string> dictionary = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 			FlareData.FlareDB.DbCredential cred = new FlareData.FlareDB.DbCredential();
 			Dictionary<string, string> connString = text.Split(';')
@@ -318,13 +330,6 @@ namespace SolarFlare
 
 		static void GetDatabaseConnection()
 		{
-			// SolarWinds Orion uses a default entropy for it's CryptUnprotectData
-			// This is currently being removed from the code base as far as I can tell
-			// so this may break in the future.
-
-			byte[] additionalEntropy = new byte[] { 2, 0, 1, 2, 0, 3, 0, 9 };
-
-
 			// SWNetPerfMon is where the database configuration is, it's a simple text file
 			string perfmondb = "";
 			try
@@ -352,11 +357,6 @@ namespace SolarFlare
 				perfmondb += "\\SolarWinds\\Orion\\SWNetPerfMon.DB";
 			}
 			Console.WriteLine($"| \tPath to SWNetPerfMon.DB is: {perfmondb}");
-
-			// SolarWindsDatabaseAccessCredential.json has been found to be used for external database connections
-			// I don't know why this is used and why it isn't in other cases..
-			string jsonpath = Environment.GetEnvironmentVariable("programdata");
-			jsonpath += "\\SolarWinds\\CredentialStorage\\SolarWindsDatabaseAccessCredential.json";
 
 			if (File.Exists(perfmondb))
 			{
